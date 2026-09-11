@@ -1,0 +1,2579 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7c3aed">
+<title>Ficha de Costos</title>
+<style>
+/* ============================================================
+   RESET Y VARIABLES
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:#f4f5fb;color:#1e2233;font-size:15px;line-height:1.5;
+  padding-bottom:40px;
+}
+h1,h2,h3,h4{margin:0;font-weight:700;line-height:1.25}
+p{margin:0}
+button{font-family:inherit}
+:root{
+  --primary:#7c3aed;
+  --primary-dark:#6d28d9;
+  --primary-soft:#ede9fe;
+  --accent:#ec4899;
+  --ok:#059669;
+  --ok-soft:#d1fae5;
+  --danger:#dc2626;
+  --danger-soft:#fee2e2;
+  --warn:#d97706;
+  --border:#e6e8f0;
+  --muted:#6b7280;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.app-header{
+  background:linear-gradient(135deg,#7c3aed,#a855f7 55%,#ec4899);
+  color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;
+  box-shadow:0 2px 12px rgba(124,58,237,.25);
+}
+.app-header .logo{
+  width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.22);
+  display:grid;place-items:center;font-size:22px;overflow:hidden;flex:none;
+}
+.app-header .logo img{width:100%;height:100%;object-fit:cover}
+.app-header h1{font-size:17px}
+.app-header p{font-size:12px;opacity:.9}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.main-nav{
+  display:flex;gap:8px;padding:10px 12px;overflow-x:auto;
+  background:#fff;border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:40;scrollbar-width:none;
+  box-shadow:0 1px 4px rgba(16,24,40,.04);
+}
+.main-nav::-webkit-scrollbar{display:none}
+.main-nav button{
+  flex:none;border:1px solid var(--border);background:#fff;color:#4b5563;
+  padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;
+  cursor:pointer;white-space:nowrap;transition:.15s;
+}
+.main-nav button:hover{background:#f9fafb}
+.main-nav button.active{background:var(--primary);border-color:var(--primary);color:#fff}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+main{padding:14px;max-width:1000px;margin:0 auto}
+.view{display:none}
+.view.active{display:block;animation:fade .2s ease}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+.page-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.page-head h2{font-size:18px}
+
+.card{
+  background:#fff;border:1px solid var(--border);border-radius:16px;
+  padding:16px;margin-bottom:14px;
+  box-shadow:0 1px 3px rgba(16,24,40,.05);
+}
+.card h3{font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:#111827}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.card-head h3{margin-bottom:0}
+
+.grid{display:grid;gap:12px;grid-template-columns:1fr}
+.grid.g2{grid-template-columns:1fr}
+.grid.g3{grid-template-columns:1fr}
+.grid .full{grid-column:1/-1}
+@media(min-width:620px){
+  .grid.g2{grid-template-columns:1fr 1fr}
+  .grid.g3{grid-template-columns:1fr 1fr 1fr}
+}
+
+/* ============================================================
+   FORMULARIOS
+   ============================================================ */
+label{display:block;font-size:12.5px;font-weight:600;color:#4b5563;margin-bottom:5px}
+input,select,textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;
+  background:#fff;color:inherit;font-size:15px;transition:border-color .15s,box-shadow .15s;
+}
+input:focus,select:focus,textarea:focus{
+  outline:none;border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(124,58,237,.13);
+}
+textarea{resize:vertical;min-height:60px}
+input[type=date]{min-height:42px}
+
+.hint{font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:12px}
+.hint b{color:#374151}
+
+/* ============================================================
+   BOTONES
+   ============================================================ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:1px solid var(--primary);background:var(--primary);color:#fff;
+  padding:11px 18px;border-radius:11px;font-size:14px;font-weight:600;
+  cursor:pointer;transition:.15s;
+}
+.btn:hover{background:var(--primary-dark);border-color:var(--primary-dark)}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:#fff;color:#4b5563;border-color:var(--border)}
+.btn.ghost:hover{background:#f9fafb;color:#111827}
+.btn.danger{background:#fff;color:var(--danger);border-color:#fecaca}
+.btn.danger:hover{background:var(--danger-soft)}
+.btn.ok{background:var(--ok);border-color:var(--ok)}
+.btn.ok:hover{background:#047857}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:9px}
+.btn.xs{padding:5px 10px;font-size:12px;border-radius:8px}
+.btn.full{width:100%}
+
+.icon-btn{
+  border:1px solid var(--border);background:#fff;color:#6b7280;
+  width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:15px;
+  display:grid;place-items:center;flex:none;transition:.15s;
+}
+.icon-btn:hover{background:#f9fafb}
+.icon-btn.danger:hover{background:var(--danger-soft);color:var(--danger);border-color:#fecaca}
+
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn-row .btn{flex:1;min-width:140px}
+
+/* ============================================================
+   BANNER NEGOCIO
+   ============================================================ */
+.biz-banner{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--primary-soft);border:1px solid #ddd6fe;color:#5b21b6;
+  padding:10px 14px;border-radius:12px;font-size:13px;font-weight:600;
+  margin-bottom:14px;flex-wrap:wrap;
+}
+
+/* ============================================================
+   ITEMS (productos / otros costos)
+   ============================================================ */
+.item-list{display:flex;flex-direction:column;gap:12px}
+.item-card{
+  border:1px solid var(--border);border-radius:13px;padding:12px;
+  background:#fcfcfe;
+}
+.item-head{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.item-num{
+  width:26px;height:26px;border-radius:8px;background:var(--primary-soft);
+  color:var(--primary);display:grid;place-items:center;font-size:12px;font-weight:700;flex:none;
+}
+.item-name{flex:1;font-weight:600}
+.item-grid{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+@media(min-width:620px){.item-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:900px){.item-grid{grid-template-columns:repeat(6,1fr)}}
+.item-grid > div{min-width:0}
+.item-grid input,.item-grid select{font-size:14px;padding:8px 10px}
+
+.calc-box{
+  background:#f5f3ff;border:1px dashed #ddd6fe;border-radius:10px;
+  padding:6px 10px;display:flex;flex-direction:column;justify-content:center;
+}
+.calc-box label{margin-bottom:2px;font-size:11px;color:#7c3aed;text-transform:uppercase;letter-spacing:.3px}
+.calc-value{font-size:14px;font-weight:700;color:#5b21b6;word-break:break-word}
+
+.row-alert{
+  margin-top:8px;font-size:12.5px;color:var(--danger);
+  background:var(--danger-soft);border-radius:8px;padding:6px 10px;display:none;
+}
+.hint-mini{font-size:11px;color:var(--muted);margin-top:3px;display:block}
+
+.empty{
+  text-align:center;color:var(--muted);font-size:13.5px;
+  padding:18px 10px;background:#fafafe;border:1px dashed var(--border);border-radius:12px;
+}
+
+/* ============================================================
+   RESÚMENES
+   ============================================================ */
+.calc-line{
+  margin-top:12px;padding:10px 12px;background:#f5f3ff;border-radius:10px;
+  font-size:14px;color:#5b21b6;display:flex;justify-content:space-between;gap:10px;
+}
+.calc-line b{font-weight:800}
+
+.resumen-row{
+  display:flex;justify-content:space-between;gap:12px;
+  padding:9px 0;border-bottom:1px dashed #eceef5;font-size:14px;
+}
+.resumen-row:last-child{border-bottom:none}
+.resumen-row span:last-child{font-weight:700;white-space:nowrap}
+.resumen-row.total{
+  border-top:2px solid var(--primary-soft);border-bottom:none;
+  margin-top:6px;padding-top:14px;font-size:17px;font-weight:800;color:var(--primary);
+}
+
+.result-grid{display:grid;gap:10px;grid-template-columns:1fr}
+@media(min-width:620px){.result-grid{grid-template-columns:1fr 1fr}}
+.result-box{
+  border-radius:12px;padding:12px 14px;border:1px solid var(--border);background:#fafafe;
+}
+.result-box .rb-label{font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:700}
+.result-box .rb-value{font-size:19px;font-weight:800;margin-top:3px;word-break:break-word}
+.result-box.highlight{background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;color:#fff}
+.result-box.highlight .rb-label{color:rgba(255,255,255,.85)}
+.result-box.highlight .rb-value{color:#fff}
+.result-box.ok{background:var(--ok-soft);border-color:#a7f3d0}
+.result-box.ok .rb-value{color:#047857}
+.result-box.warn{background:#fef3c7;border-color:#fde68a}
+.result-box.warn .rb-value{color:#b45309}
+
+/* ============================================================
+   INFO BOX
+   ============================================================ */
+.info-box{
+  background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;
+  padding:12px 14px;font-size:13px;color:#1e40af;line-height:1.6;
+}
+.info-box b{color:#1e3a8a}
+.info-box ul{margin:6px 0 0;padding-left:18px}
+.info-box li{margin-bottom:4px}
+
+.alert-box{
+  background:var(--danger-soft);border:1px solid #fecaca;color:#991b1b;
+  border-radius:12px;padding:12px 14px;font-size:13px;margin-bottom:14px;display:none;
+}
+.alert-box ul{margin:0;padding-left:18px}
+.alert-box li{margin-bottom:3px}
+
+/* ============================================================
+   TABLAS
+   ============================================================ */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.data{width:100%;border-collapse:collapse;font-size:13.5px;min-width:420px}
+table.data th,table.data td{padding:9px 10px;text-align:left;border-bottom:1px solid #f0f1f6}
+table.data th{
+  font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;
+  color:var(--muted);font-weight:700;background:#fafafe;
+}
+table.data tbody tr:hover{background:#fcfcff}
+table.data td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.data tr.hl{background:#f5f3ff}
+table.data tr.hl td{font-weight:700;color:#5b21b6}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+.hero{
+  background:linear-gradient(135deg,#7c3aed,#a855f7 60%,#ec4899);
+  color:#fff;border-radius:18px;padding:20px;margin-bottom:14px;
+  box-shadow:0 6px 20px rgba(124,58,237,.22);
+}
+.hero h2{font-size:20px;margin-bottom:4px}
+.hero p{font-size:13.5px;opacity:.92}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+@media(min-width:620px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{
+  background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;
+  box-shadow:0 1px 3px rgba(16,24,40,.05);
+}
+.stat-label{display:block;font-size:11.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.stat-value{display:block;font-size:18px;font-weight:800;margin-top:4px;color:#111827;word-break:break-word}
+.stat-value.ok{color:var(--ok)}
+.stat-value.purple{color:var(--primary)}
+
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+@media(min-width:620px){.quick-actions{grid-template-columns:repeat(4,1fr)}}
+.qa{
+  background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px 12px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;
+  font-size:13px;font-weight:600;color:#374151;transition:.15s;
+  box-shadow:0 1px 3px rgba(16,24,40,.05);
+}
+.qa:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-2px)}
+.qa span{font-size:24px}
+
+/* ============================================================
+   LISTA DE FICHAS
+   ============================================================ */
+.ficha-item{
+  border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;
+  background:#fff;transition:.15s;
+}
+.ficha-item:hover{border-color:#c4b5fd;box-shadow:0 4px 14px rgba(124,58,237,.08)}
+.ficha-item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.ficha-item-head h4{font-size:15.5px;margin-bottom:4px}
+.ficha-price{font-size:17px;font-weight:800;color:var(--primary);white-space:nowrap}
+.chip{
+  display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;
+  background:var(--primary-soft);color:#6d28d9;text-transform:uppercase;letter-spacing:.3px;
+}
+.ficha-meta{display:flex;flex-wrap:wrap;gap:10px 16px;font-size:12.5px;color:var(--muted);margin-bottom:10px}
+.ficha-meta b{color:#374151}
+.ficha-meta b.ok{color:var(--ok)}
+.ficha-actions{display:flex;flex-wrap:wrap;gap:7px}
+
+.search-box{margin-bottom:14px;position:relative}
+.search-box input{padding-left:38px}
+.search-box::before{
+  content:"🔍";position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  font-size:14px;opacity:.5;pointer-events:none;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translate(-50%,120%);
+  background:#111827;color:#fff;padding:12px 20px;border-radius:12px;
+  font-size:13.5px;font-weight:600;z-index:200;transition:transform .3s ease;
+  max-width:90vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.25);
+}
+.toast.show{transform:translate(-50%,0)}
+.toast.err{background:var(--danger)}
+.toast.ok{background:var(--ok)}
+
+/* ============================================================
+   FICHA IMPRIMIBLE
+   ============================================================ */
+#printArea{display:none}
+
+.ficha-print{
+  background:#fff;border:1px solid #e6e8f0;border-radius:16px;padding:22px;
+  max-width:720px;margin:0 auto;
+}
+.fp-head{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  border-bottom:3px solid var(--primary);padding-bottom:14px;margin-bottom:16px;flex-wrap:wrap;
+}
+.fp-biz{display:flex;gap:12px;align-items:center}
+.fp-logo{
+  width:54px;height:54px;border-radius:14px;background:var(--primary-soft);
+  display:grid;place-items:center;font-size:26px;overflow:hidden;flex:none;
+}
+.fp-logo img{width:100%;height:100%;object-fit:cover}
+.fp-biz h3{font-size:18px;color:#111827;margin-bottom:2px}
+.fp-biz p{font-size:12.5px;color:var(--muted)}
+.fp-title{text-align:right}
+.fp-title .t1{font-size:11px;letter-spacing:2px;color:var(--primary);font-weight:800}
+.fp-title .t2{font-size:12.5px;color:var(--muted);margin-top:2px}
+.fp-service{
+  background:#fafafe;border:1px solid var(--border);border-radius:12px;
+  padding:12px 14px;margin-bottom:16px;
+}
+.fp-service h4{font-size:16px;margin-bottom:4px}
+.fp-service p{font-size:12.5px;color:var(--muted)}
+.fp-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.fp-tag{
+  font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;
+  background:var(--primary-soft);color:#6d28d9;
+}
+.fp-section-title{
+  font-size:11.5px;text-transform:uppercase;letter-spacing:1px;font-weight:800;
+  color:var(--muted);margin:16px 0 8px;
+}
+.fp-total{
+  display:flex;justify-content:space-between;align-items:center;
+  background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;
+  border-radius:12px;padding:14px 18px;margin:12px 0;
+}
+.fp-total span:first-child{font-size:12.5px;text-transform:uppercase;letter-spacing:1px;opacity:.9;font-weight:700}
+.fp-total span:last-child{font-size:24px;font-weight:900}
+.fp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.fp-box{border:1px solid var(--border);border-radius:11px;padding:10px 12px;background:#fafafe}
+.fp-box .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}
+.fp-box .v{font-size:16px;font-weight:800;margin-top:3px;color:#111827}
+.fp-box .v.green{color:var(--ok)}
+.fp-box .v.purple{color:var(--primary)}
+.fp-foot{
+  margin-top:18px;padding-top:12px;border-top:1px dashed var(--border);
+  font-size:11px;color:var(--muted);text-align:center;line-height:1.7;
+}
+
+/* ============================================================
+   IMPRESIÓN
+   ============================================================ */
+@media print{
+  @page{margin:12mm}
+  body{background:#fff;padding:0;font-size:12px}
+  .app-header,.main-nav,main,.toast,.no-print{display:none !important}
+  #printArea{display:block !important}
+  .ficha-print{border:none;padding:0;max-width:100%;box-shadow:none}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================ HEADER ============================ -->
+<header class="app-header">
+  <div class="logo" id="headerLogo">💅</div>
+  <div>
+    <h1 id="headerTitle">Ficha de Costos</h1>
+    <p id="headerSub">Configura tu negocio para comenzar</p>
+  </div>
+</header>
+
+<!-- ============================ NAV ============================ -->
+<nav class="main-nav" id="mainNav">
+  <button data-view="dashboard" class="active">🏠 Inicio</button>
+  <button data-view="ficha">➕ Nueva ficha</button>
+  <button data-view="fichas">📋 Mis fichas</button>
+  <button data-view="analisis">📊 Análisis</button>
+  <button data-view="config">⚙️ Configuración</button>
+</nav>
+
+<main>
+
+  <!-- ============================================================
+       VISTA: DASHBOARD
+       ============================================================ -->
+  <section class="view active" id="view-dashboard">
+    <div class="hero">
+      <h2>¡Hola! 👋</h2>
+      <p>Calcula el costo real de cada servicio y descubre cuánto deberías cobrar.</p>
+    </div>
+
+    <div class="stats" id="dashStats"></div>
+
+    <div class="quick-actions">
+      <button class="qa" data-goto="ficha"><span>➕</span>Nueva ficha</button>
+      <button class="qa" data-goto="fichas"><span>📋</span>Mis fichas</button>
+      <button class="qa" data-goto="analisis"><span>📊</span>Análisis</button>
+      <button class="qa" data-goto="config"><span>⚙️</span>Configuración</button>
+    </div>
+
+    <div class="card">
+      <h3>🕘 Últimas fichas guardadas</h3>
+      <div id="dashRecientes"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       VISTA: FICHA
+       ============================================================ -->
+  <section class="view" id="view-ficha">
+
+    <div class="page-head">
+      <h2 id="fichaTitulo">Nueva ficha de costo</h2>
+      <button class="btn ghost sm" id="btnLimpiar">🧹 Limpiar formulario</button>
+    </div>
+
+    <div class="biz-banner">
+      <span id="bizBannerTexto">Sin datos del negocio configurados</span>
+      <button class="btn ghost xs" data-goto="config">Editar</button>
+    </div>
+
+    <div class="alert-box" id="alertBox"></div>
+
+    <!-- ---------- DATOS DEL SERVICIO ---------- -->
+    <div class="card">
+      <h3>📝 Datos del servicio</h3>
+      <div class="grid g2">
+        <div>
+          <label for="servicioNombre">Nombre del servicio *</label>
+          <input id="servicioNombre" type="text" placeholder="Ej: Extensiones clásicas">
+        </div>
+        <div>
+          <label for="servicioCategoria">Categoría</label>
+          <input id="servicioCategoria" type="text" list="listaCategorias" placeholder="Ej: Pestañas">
+        </div>
+        <div>
+          <label for="servicioDuracion">Duración estimada (horas)</label>
+          <input id="servicioDuracion" type="number" step="any" min="0" placeholder="Ej: 2">
+        </div>
+        <div>
+          <label for="servicioClientas">Clientas estimadas al mes</label>
+          <input id="servicioClientas" type="number" step="1" min="0" placeholder="Ej: 20">
+        </div>
+        <div>
+          <label for="fichaFecha">Fecha de la ficha</label>
+          <input id="fichaFecha" type="date">
+        </div>
+        <div class="full">
+          <label for="servicioDescripcion">Descripción</label>
+          <textarea id="servicioDescripcion" rows="2" placeholder="Detalles, técnica, observaciones..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- PRODUCTOS Y MATERIALES ---------- -->
+    <div class="card">
+      <div class="card-head">
+        <h3>🧪 Productos y materiales</h3>
+        <button class="btn sm" id="btnAddProducto">➕ Agregar producto</button>
+      </div>
+      <p class="hint">
+        El <b>costo por unidad</b> se calcula solo: <b>precio de compra ÷ cantidad comprada</b>.
+        El <b>costo por clienta</b> = costo por unidad × uso por clienta.
+        Si escribes directamente en “Costo por unidad”, se usará ese valor manual
+        (bórralo para volver al cálculo automático).
+      </p>
+      <div class="item-list" id="listaProductos"></div>
+    </div>
+
+    <!-- ---------- TRANSPORTE ---------- -->
+    <div class="card">
+      <h3>🚗 Transporte</h3>
+      <div class="grid g2">
+        <div class="full">
+          <label for="transporteModo">Modo de cálculo</label>
+          <select id="transporteModo">
+            <option value="distribuido">Distribuir un costo total entre varias clientas</option>
+            <option value="fijo">Costo fijo por servicio</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid g2" id="bloqueTransporteDist" style="margin-top:12px">
+        <div>
+          <label for="transporteTotal">Costo total del transporte</label>
+          <input id="transporteTotal" type="number" step="any" min="0" placeholder="Ej: 2000">
+        </div>
+        <div>
+          <label for="transporteClientas">Nº de clientas / servicios</label>
+          <input id="transporteClientas" type="number" step="any" min="0" placeholder="Ej: 10">
+        </div>
+      </div>
+      <div class="grid g2" id="bloqueTransporteFijo" style="margin-top:12px;display:none">
+        <div>
+          <label for="transporteFijo">Costo fijo por servicio</label>
+          <input id="transporteFijo" type="number" step="any" min="0" placeholder="Ej: 200">
+        </div>
+      </div>
+      <div class="calc-line"><span>Transporte por clienta</span><b id="outTransporte">—</b></div>
+    </div>
+
+    <!-- ---------- MANO DE OBRA ---------- -->
+    <div class="card">
+      <h3>⏱️ Mano de obra</h3>
+      <div class="grid g2">
+        <div>
+          <label for="manoHoras">Tiempo empleado por servicio (horas)</label>
+          <input id="manoHoras" type="number" step="any" min="0" placeholder="Ej: 1.5">
+        </div>
+        <div>
+          <label for="manoValorHora">Valor de una hora de trabajo</label>
+          <input id="manoValorHora" type="number" step="any" min="0" placeholder="Ej: 300">
+        </div>
+      </div>
+      <div class="calc-line"><span>Costo de mano de obra</span><b id="outManoObra">—</b></div>
+    </div>
+
+    <!-- ---------- OTROS COSTOS ---------- -->
+    <div class="card">
+      <div class="card-head">
+        <h3>🧾 Otros costos</h3>
+        <button class="btn sm" id="btnAddOtro">➕ Agregar costo</button>
+      </div>
+      <p class="hint">
+        Electricidad, agua, alquiler, internet, limpieza, mantenimiento, herramientas, comisiones…
+        El sistema divide el costo entre el <b>número de servicios</b> sobre los que se distribuye.
+      </p>
+      <div class="item-list" id="listaOtros"></div>
+    </div>
+
+    <!-- ---------- RESUMEN DE COSTOS ---------- -->
+    <div class="card">
+      <h3>📊 Resumen de costos</h3>
+      <div class="resumen-row"><span>Materiales</span><span id="resMateriales">—</span></div>
+      <div class="resumen-row"><span>Transporte</span><span id="resTransporte">—</span></div>
+      <div class="resumen-row"><span>Mano de obra</span><span id="resManoObra">—</span></div>
+      <div class="resumen-row"><span>Otros costos</span><span id="resOtros">—</span></div>
+      <div class="resumen-row total"><span>COSTO TOTAL DEL SERVICIO</span><span id="resTotal">—</span></div>
+    </div>
+
+    <!-- ---------- MARGEN ---------- -->
+    <div class="card">
+      <h3>💰 Margen de ganancia</h3>
+
+      <div class="grid g2">
+        <div>
+          <label for="margenModo">Tipo de cálculo</label>
+          <select id="margenModo">
+            <option value="margen">Margen sobre precio de venta</option>
+            <option value="recargo">Recargo sobre costo</option>
+          </select>
+        </div>
+        <div>
+          <label for="margenValor">Porcentaje deseado (%)</label>
+          <input id="margenValor" type="number" step="any" min="0" max="99" placeholder="Ej: 30" value="30">
+        </div>
+      </div>
+
+      <div class="info-box" style="margin-top:12px">
+        <b>⚠️ Margen NO es lo mismo que recargo</b>
+        <ul>
+          <li><b>Margen sobre precio de venta:</b> Precio = Costo ÷ (1 − margen).
+              Con 30% sobre un costo de 500 → <b>714.29</b></li>
+          <li><b>Recargo sobre costo:</b> Precio = Costo × (1 + recargo).
+              Con 30% sobre un costo de 500 → <b>650.00</b></li>
+        </ul>
+        <div style="margin-top:8px" id="ejemploMargen"></div>
+      </div>
+
+      <div class="result-grid" style="margin-top:14px">
+        <div class="result-box">
+          <div class="rb-label">Costo total</div>
+          <div class="rb-value" id="outCostoTotal">—</div>
+        </div>
+        <div class="result-box highlight">
+          <div class="rb-label">Precio de venta recomendado</div>
+          <div class="rb-value" id="outPrecioRecomendado">—</div>
+        </div>
+        <div class="result-box ok">
+          <div class="rb-label">Ganancia por servicio</div>
+          <div class="rb-value" id="outGanancia">—</div>
+        </div>
+        <div class="result-box">
+          <div class="rb-label">Margen real / Recargo real</div>
+          <div class="rb-value" id="outMargenReal">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- PRECIO MANUAL ---------- -->
+    <div class="card">
+      <h3>✍️ Precio manual</h3>
+      <p class="hint">Introduce el precio que cobras actualmente y compara con el precio recomendado.</p>
+      <div class="grid g2">
+        <div>
+          <label for="precioManual">Precio de venta que cobras</label>
+          <input id="precioManual" type="number" step="any" min="0" placeholder="Ej: 800">
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="btn ghost full" id="btnLimpiarPrecio">Usar precio recomendado</button>
+        </div>
+      </div>
+      <div class="result-grid" style="margin-top:12px">
+        <div class="result-box ok">
+          <div class="rb-label">Ganancia</div>
+          <div class="rb-value" id="outGananciaManual">—</div>
+        </div>
+        <div class="result-box">
+          <div class="rb-label">Margen real</div>
+          <div class="rb-value" id="outMargenManual">—</div>
+        </div>
+        <div class="result-box">
+          <div class="rb-label">Recargo real</div>
+          <div class="rb-value" id="outRecargoManual">—</div>
+        </div>
+        <div class="result-box warn">
+          <div class="rb-label">Diferencia vs. recomendado</div>
+          <div class="rb-value" id="outDiferencia">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- PUNTO DE EQUILIBRIO ---------- -->
+    <div class="card">
+      <h3>⚖️ Punto de equilibrio</h3>
+      <p class="hint">¿Cuántos servicios necesitas al mes para cubrir tus costos fijos?</p>
+      <div class="grid g2">
+        <div>
+          <label for="costosFijos">Costos fijos mensuales</label>
+          <input id="costosFijos" type="number" step="any" min="0" placeholder="Ej: 15000">
+        </div>
+        <div>
+          <label for="gananciaServicio">Ganancia por servicio</label>
+          <input id="gananciaServicio" type="number" step="any" min="0" placeholder="Se calcula automáticamente">
+        </div>
+      </div>
+      <div class="calc-line"><span>Punto de equilibrio</span><b id="outEquilibrio">—</b></div>
+    </div>
+
+    <!-- ---------- SIMULADOR ---------- -->
+    <div class="card">
+      <h3>🎯 Simulador de precios</h3>
+      <p class="hint">Precios y ganancias según distintos porcentajes, aplicados al costo real de este servicio.</p>
+      <div class="table-wrap">
+        <table class="data" id="tablaSimulador">
+          <thead>
+            <tr>
+              <th>Margen</th>
+              <th class="num">Precio</th>
+              <th class="num">Ganancia</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ---------- RESULTADO FINAL ---------- -->
+    <div class="card">
+      <h3>🧾 Ficha de costo final</h3>
+      <div id="resultadoFicha"></div>
+    </div>
+
+    <!-- ---------- ACCIONES ---------- -->
+    <div class="card no-print">
+      <div class="btn-row">
+        <button class="btn" id="btnGuardar">💾 Guardar ficha</button>
+        <button class="btn ghost" id="btnImprimir">🖨️ Imprimir / PDF</button>
+        <button class="btn ghost" id="btnExportarFicha">⬇️ Exportar JSON</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============================================================
+       VISTA: MIS FICHAS
+       ============================================================ -->
+  <section class="view" id="view-fichas">
+    <div class="page-head">
+      <h2>📋 Mis fichas</h2>
+      <button class="btn sm" data-goto="ficha">➕ Nueva ficha</button>
+    </div>
+    <div class="search-box">
+      <input type="text" id="buscador" placeholder="Buscar por servicio o categoría...">
+    </div>
+    <div id="listaFichas"></div>
+  </section>
+
+  <!-- ============================================================
+       VISTA: ANÁLISIS
+       ============================================================ -->
+  <section class="view" id="view-analisis">
+    <div class="page-head">
+      <h2>📊 Análisis</h2>
+    </div>
+
+    <div class="stats" id="analisisStats"></div>
+
+    <div class="card">
+      <h3>📈 Comparativa de servicios</h3>
+      <div class="table-wrap">
+        <table class="data" id="tablaComparativa">
+          <thead>
+            <tr>
+              <th>Servicio</th>
+              <th class="num">Costo</th>
+              <th class="num">Precio</th>
+              <th class="num">Ganancia</th>
+              <th class="num">Margen</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>💡 Recomendaciones</h3>
+      <div id="recomendaciones"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       VISTA: CONFIGURACIÓN
+       ============================================================ -->
+  <section class="view" id="view-config">
+    <div class="page-head">
+      <h2>⚙️ Configuración</h2>
+    </div>
+
+    <div class="card">
+      <h3>🏢 Datos del negocio</h3>
+      <div class="grid g2">
+        <div>
+          <label for="cfgNegocio">Nombre del negocio</label>
+          <input id="cfgNegocio" type="text" placeholder="Ej: Studio Bella">
+        </div>
+        <div>
+          <label for="cfgPropietario">Nombre del propietario</label>
+          <input id="cfgPropietario" type="text" placeholder="Ej: María Pérez">
+        </div>
+        <div>
+          <label for="cfgTelefono">Teléfono</label>
+          <input id="cfgTelefono" type="text" placeholder="Ej: +53 5 123 4567">
+        </div>
+        <div>
+          <label for="cfgMoneda">Moneda</label>
+          <select id="cfgMoneda">
+            <option value="CUP">CUP — Peso cubano</option>
+            <option value="USD">USD — Dólar</option>
+            <option value="EUR">EUR — Euro</option>
+            <option value="MXN">MXN — Peso mexicano</option>
+            <option value="COP">COP — Peso colombiano</option>
+            <option value="ARS">ARS — Peso argentino</option>
+            <option value="BRL">BRL — Real brasileño</option>
+            <option value="Otra">Otra…</option>
+          </select>
+        </div>
+        <div id="bloqueMonedaOtra" style="display:none">
+          <label for="cfgMonedaOtra">Escribe tu moneda</label>
+          <input id="cfgMonedaOtra" type="text" placeholder="Ej: CLP" maxlength="6">
+        </div>
+        <div class="full">
+          <label for="cfgLogo">Logo (opcional)</label>
+          <input id="cfgLogo" type="file" accept="image/*">
+          <small class="hint-mini">Se guarda dentro del navegador. Usa imágenes pequeñas (menos de 200 KB).</small>
+        </div>
+      </div>
+      <div id="logoPreviewWrap" style="margin-top:12px;display:none">
+        <label>Vista previa</label>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="fp-logo" id="logoPreview"></div>
+          <button class="btn ghost sm" id="btnQuitarLogo">Quitar logo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>💾 Datos y respaldo</h3>
+      <p class="hint">Toda la información se guarda en este navegador (localStorage). Exporta un respaldo periódicamente.</p>
+      <div class="btn-row">
+        <button class="btn ghost" id="btnExportarTodo">⬇️ Exportar todo (JSON)</button>
+        <button class="btn ghost" id="btnImportar">⬆️ Importar JSON</button>
+        <input type="file" id="inputImportar" accept=".json,application/json" style="display:none">
+      </div>
+      <div class="btn-row" style="margin-top:10px">
+        <button class="btn danger full" id="btnBorrarTodo">🗑️ Borrar todas las fichas</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>ℹ️ Acerca de</h3>
+      <p class="hint">
+        <b>Ficha de Costos</b> funciona 100% en tu navegador, sin servidor ni base de datos.
+        No requiere conexión a internet ni librerías externas.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============================ ÁREA DE IMPRESIÓN ============================ -->
+<div id="printArea"></div>
+
+<!-- ============================ TOAST ============================ -->
+<div class="toast" id="toast"></div>
+
+<!-- ============================ DATALISTS ============================ -->
+<datalist id="listaUnidades">
+  <option value="ml"></option>
+  <option value="litros"></option>
+  <option value="gramos"></option>
+  <option value="kg"></option>
+  <option value="unidades"></option>
+  <option value="metros"></option>
+  <option value="centímetros"></option>
+  <option value="pares"></option>
+  <option value="paquetes"></option>
+  <option value="rollos"></option>
+  <option value="horas"></option>
+  <option value="sesiones"></option>
+  <option value="cajas"></option>
+  <option value="frascos"></option>
+  <option value="sobres"></option>
+  <option value="aplicaciones"></option>
+</datalist>
+
+<datalist id="listaCategorias">
+  <option value="Pestañas"></option>
+  <option value="Cejas"></option>
+  <option value="Depilación"></option>
+  <option value="Uñas"></option>
+  <option value="Cabello"></option>
+  <option value="Maquillaje"></option>
+  <option value="Facial"></option>
+  <option value="Masajes"></option>
+  <option value="Otro"></option>
+</datalist>
+
+<script>
+"use strict";
+
+/* ============================================================
+   1. CONSTANTES Y UTILIDADES
+   ============================================================ */
+const STORAGE_KEY  = 'ficha_costos_v1';
+const DRAFT_KEY    = 'ficha_costos_v1_draft';
+
+const $  = id => document.getElementById(id);
+
+/** Convierte un valor a número (acepta coma decimal). Devuelve 0 si no es válido. */
+function numVal(v){
+  if(v === null || v === undefined) return 0;
+  const n = parseFloat(String(v).replace(',', '.'));
+  return isNaN(n) ? 0 : n;
+}
+
+/** Escapa texto para insertarlo en HTML. */
+function esc(s){
+  return String(s === null || s === undefined ? '' : s)
+    .replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/** Formatea un número con 2 decimales y separador de miles. */
+function money(n){
+  if(!isFinite(n)) n = 0;
+  const neg = n < 0;
+  n = Math.abs(n);
+  const parts = n.toFixed(2).split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return (neg ? '-' : '') + parts[0] + '.' + parts[1];
+}
+
+/** Formatea un porcentaje. */
+function pct(n){
+  if(!isFinite(n)) n = 0;
+  return n.toFixed(2) + '%';
+}
+
+/** Redondea a 2 decimales (para guardar resúmenes). */
+function round2(n){
+  if(!isFinite(n)) return 0;
+  return Math.round(n * 100) / 100;
+}
+
+/** Formatea un número para mostrarlo dentro de un input (sin ceros sobrantes). */
+function numToStr(n){
+  if(!isFinite(n) || n === 0) return '';
+  return String(parseFloat(n.toFixed(6)));
+}
+
+/** Moneda formateada con el símbolo/código configurado. */
+function cur(n){
+  return money(n) + ' ' + (state.settings.moneda || 'CUP');
+}
+
+/* ============================================================
+   2. FUNCIONES DE CÁLCULO (INDEPENDIENTES)
+   ============================================================ */
+
+/** Costo por unidad = precio de compra ÷ cantidad comprada */
+function calcularCostoUnidad(precioCompra, cantidadComprada){
+  const cantidad = numVal(cantidadComprada);
+  if(cantidad <= 0) return 0;
+  return numVal(precioCompra) / cantidad;
+}
+
+/** Costo por clienta = costo por unidad × uso por clienta */
+function calcularCostoPorClienta(costoUnidad, usoPorClienta){
+  return numVal(costoUnidad) * numVal(usoPorClienta);
+}
+
+/** Mano de obra = horas trabajadas × valor por hora */
+function calcularManoDeObra(horas, valorHora){
+  return numVal(horas) * numVal(valorHora);
+}
+
+/** Transporte por clienta = costo total ÷ número de clientas */
+function calcularTransporte(costoTotal, numClientas){
+  const c = numVal(numClientas);
+  if(c <= 0) return 0;
+  return numVal(costoTotal) / c;
+}
+
+/** Costo distribuido por servicio = costo ÷ número de servicios */
+function calcularCostoDistribuido(costo, numServicios){
+  const s = numVal(numServicios);
+  if(s <= 0) return 0;
+  return numVal(costo) / s;
+}
+
+/** Costo total = materiales + transporte + mano de obra + otros */
+function calcularCostoTotal(materiales, transporte, manoObra, otros){
+  return numVal(materiales) + numVal(transporte) + numVal(manoObra) + numVal(otros);
+}
+
+/** Precio con margen sobre precio de venta: Costo ÷ (1 − margen) */
+function calcularPrecioConMargen(costo, margenPorcentaje){
+  const m = numVal(margenPorcentaje) / 100;
+  if(m >= 1) return NaN;         // margen inválido (100% o más)
+  if(m <= -1) return NaN;
+  return numVal(costo) / (1 - m);
+}
+
+/** Precio con recargo sobre costo: Costo × (1 + recargo) */
+function calcularPrecioConRecargo(costo, recargoPorcentaje){
+  return numVal(costo) * (1 + numVal(recargoPorcentaje) / 100);
+}
+
+/** Ganancia = precio − costo */
+function calcularGanancia(precio, costo){
+  return numVal(precio) - numVal(costo);
+}
+
+/** Margen real = ganancia ÷ precio × 100 */
+function calcularMargen(precio, costo){
+  const p = numVal(precio);
+  if(p <= 0) return 0;
+  return (p - numVal(costo)) / p * 100;
+}
+
+/** Recargo real = ganancia ÷ costo × 100 */
+function calcularRecargo(precio, costo){
+  const c = numVal(costo);
+  if(c <= 0) return 0;
+  return (numVal(precio) - c) / c * 100;
+}
+
+/** Punto de equilibrio = costos fijos ÷ ganancia por servicio */
+function calcularPuntoEquilibrio(costosFijos, gananciaPorServicio){
+  const g = numVal(gananciaPorServicio);
+  if(g <= 0) return Infinity;
+  return Math.ceil(numVal(costosFijos) / g);
+}
+
+/* ============================================================
+   3. ESTADO GLOBAL
+   ============================================================ */
+let state = {
+  settings: {
+    negocio: '',
+    propietario: '',
+    telefono: '',
+    moneda: 'CUP',
+    monedaSel: 'CUP',
+    logo: ''
+  },
+  fichas: [],
+  productos: [],
+  otros: [],
+  editId: null
+};
+
+/** Crea un producto vacío. */
+function nuevoProducto(){
+  return { nombre:'', cantidad:'', unidad:'unidades', precio:'', uso:'', costoManual:false, costoUnidad:'' };
+}
+
+/** Crea otro costo vacío. */
+function nuevoOtro(){
+  return { nombre:'', costo:'', frecuencia:'Mensual', servicios:'' };
+}
+
+/** Costo unitario efectivo de un producto (manual o automático). */
+function costoUnidadDe(p){
+  if(p.costoManual && String(p.costoUnidad).trim() !== ''){
+    return numVal(p.costoUnidad);
+  }
+  return calcularCostoUnidad(p.precio, p.cantidad);
+}
+
+/** Costo por clienta de un producto. */
+function costoClientaDe(p){
+  return calcularCostoPorClienta(costoUnidadDe(p), p.uso);
+}
+
+/* ============================================================
+   4. PERSISTENCIA
+   ============================================================ */
+function persist(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      settings: state.settings,
+      fichas: state.fichas
+    }));
+  }catch(e){
+    console.warn('No se pudo guardar en localStorage:', e);
+    toast('No se pudo guardar. El almacenamiento está lleno.', 'err');
+  }
+}
+
+let draftTimer = null;
+function saveDraft(){
+  clearTimeout(draftTimer);
+  draftTimer = setTimeout(() => {
+    try{
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(collectForm()));
+    }catch(e){ /* silencioso */ }
+  }, 500);
+}
+
+function loadStore(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const data = JSON.parse(raw);
+      if(data.settings) Object.assign(state.settings, data.settings);
+      if(Array.isArray(data.fichas)) state.fichas = data.fichas;
+    }
+  }catch(e){
+    console.warn('Error al cargar datos:', e);
+  }
+  // Restaurar borrador de la ficha en curso
+  try{
+    const draftRaw = localStorage.getItem(DRAFT_KEY);
+    if(draftRaw){
+      const draft = JSON.parse(draftRaw);
+      fillForm(draft);
+    }
+  }catch(e){ /* silencioso */ }
+}
+
+/* ============================================================
+   5. NAVEGACIÓN
+   ============================================================ */
+function showView(name){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const target = $('view-' + name);
+  if(target) target.classList.add('active');
+
+  document.querySelectorAll('.main-nav button').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === name);
+  });
+
+  if(name === 'fichas')     renderFichas($('buscador').value);
+  if(name === 'dashboard')  renderDashboard();
+  if(name === 'analisis')   renderAnalisis();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ============================================================
+   6. TOAST
+   ============================================================ */
+let toastTimer = null;
+function toast(msg, tipo){
+  const el = $('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (tipo ? ' ' + tipo : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.className = 'toast'; }, 2800);
+}
+
+/* ============================================================
+   7. RENDER DE PRODUCTOS
+   ============================================================ */
+function renderProductos(){
+  const cont = $('listaProductos');
+  if(!state.productos.length){
+    cont.innerHTML = '<p class="empty">Aún no has agregado productos ni materiales.<br>Pulsa <b>➕ Agregar producto</b>.</p>';
+    return;
+  }
+
+  cont.innerHTML = state.productos.map((p, i) => `
+    <div class="item-card" data-idx="${i}">
+      <div class="item-head">
+        <span class="item-num">${i + 1}</span>
+        <input type="text" class="item-name" data-idx="${i}" data-field="nombre"
+               value="${esc(p.nombre)}" placeholder="Nombre del producto (ej: Pegamento)">
+        <button type="button" class="icon-btn danger" data-action="del-producto" data-idx="${i}" title="Eliminar">🗑</button>
+      </div>
+      <div class="item-grid">
+        <div>
+          <label>Cantidad comprada</label>
+          <input type="number" step="any" min="0" data-idx="${i}" data-field="cantidad"
+                 value="${esc(p.cantidad)}" placeholder="Ej: 5">
+        </div>
+        <div>
+          <label>Unidad</label>
+          <input type="text" list="listaUnidades" data-idx="${i}" data-field="unidad"
+                 value="${esc(p.unidad)}" placeholder="ml">
+        </div>
+        <div>
+          <label>Precio de compra</label>
+          <input type="number" step="any" min="0" data-idx="${i}" data-field="precio"
+                 value="${esc(p.precio)}" placeholder="Ej: 1000">
+        </div>
+        <div>
+          <label>Costo por unidad</label>
+          <input type="number" step="any" min="0" data-idx="${i}" data-field="costoUnidad"
+                 value="${esc(p.costoManual ? p.costoUnidad : '')}" placeholder="auto">
+          <small class="hint-mini" data-hint="cu"></small>
+        </div>
+        <div>
+          <label>Uso por clienta</label>
+          <input type="number" step="any" min="0" data-idx="${i}" data-field="uso"
+                 value="${esc(p.uso)}" placeholder="Ej: 0.1">
+        </div>
+        <div class="calc-box">
+          <label>Costo por clienta</label>
+          <div class="calc-value" data-calc="clienta">—</div>
+        </div>
+      </div>
+      <div class="row-alert" data-alert></div>
+    </div>
+  `).join('');
+
+  actualizarFilasProductos();
+}
+
+/** Actualiza los valores calculados de todas las filas de producto. */
+function actualizarFilasProductos(){
+  state.productos.forEach((p, i) => {
+    const card = document.querySelector(`.item-card[data-idx="${i}"]`);
+    if(!card) return;
+
+    const cu = costoUnidadDe(p);
+    const cc = costoClientaDe(p);
+
+    // Input de costo unitario (solo si NO es manual y no está enfocado)
+    const inpCU = card.querySelector('input[data-field="costoUnidad"]');
+    if(inpCU && !p.costoManual && document.activeElement !== inpCU){
+      inpCU.value = numToStr(cu);
+    }
+
+    // Pista bajo el input
+    const hint = card.querySelector('[data-hint="cu"]');
+    if(hint){
+      hint.textContent = p.costoManual
+        ? 'Valor manual: ' + cur(cu)
+        : 'Automático: precio ÷ cantidad';
+    }
+
+    // Costo por clienta
+    const ccEl = card.querySelector('[data-calc="clienta"]');
+    if(ccEl) ccEl.textContent = cur(cc);
+
+    // Alerta de uso excesivo
+    const alertEl = card.querySelector('[data-alert]');
+    if(alertEl){
+      const cant = numVal(p.cantidad);
+      const uso  = numVal(p.uso);
+      let msg = '';
+      if(cant > 0 && uso > cant){
+        msg = `⚠ El uso por clienta (${uso}) supera la cantidad comprada (${cant} ${p.unidad || ''}).`;
+      }
+      alertEl.textContent = msg;
+      alertEl.style.display = msg ? 'block' : 'none';
+    }
+  });
+}
+
+/* ============================================================
+   8. RENDER DE OTROS COSTOS
+   ============================================================ */
+function renderOtros(){
+  const cont = $('listaOtros');
+  if(!state.otros.length){
+    cont.innerHTML = '<p class="empty">Sin otros costos agregados. Pulsa <b>➕ Agregar costo</b>.</p>';
+    return;
+  }
+
+  const frecuencias = ['Mensual','Quincenal','Semanal','Diario','Anual','Único'];
+
+  cont.innerHTML = state.otros.map((o, i) => `
+    <div class="item-card" data-oidx="${i}">
+      <div class="item-head">
+        <span class="item-num">${i + 1}</span>
+        <input type="text" class="item-name" data-oidx="${i}" data-ofield="nombre"
+               value="${esc(o.nombre)}" placeholder="Ej: Electricidad">
+        <button type="button" class="icon-btn danger" data-action="del-otro" data-idx="${i}" title="Eliminar">🗑</button>
+      </div>
+      <div class="item-grid">
+        <div>
+          <label>Costo</label>
+          <input type="number" step="any" min="0" data-oidx="${i}" data-ofield="costo"
+                 value="${esc(o.costo)}" placeholder="Ej: 1500">
+        </div>
+        <div>
+          <label>Frecuencia</label>
+          <select data-oidx="${i}" data-ofield="frecuencia">
+            ${frecuencias.map(f => `<option value="${f}" ${o.frecuencia === f ? 'selected' : ''}>${f}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <label>Nº de servicios</label>
+          <input type="number" step="any" min="0" data-oidx="${i}" data-ofield="servicios"
+                 value="${esc(o.servicios)}" placeholder="Ej: 30">
+        </div>
+        <div class="calc-box">
+          <label>Por servicio</label>
+          <div class="calc-value" data-ocalc="servicio">—</div>
+        </div>
+      </div>
+      <div class="row-alert" data-oalert></div>
+    </div>
+  `).join('');
+
+  actualizarFilasOtros();
+}
+
+function actualizarFilasOtros(){
+  state.otros.forEach((o, i) => {
+    const card = document.querySelector(`.item-card[data-oidx="${i}"]`);
+    if(!card) return;
+
+    const porServicio = calcularCostoDistribuido(o.costo, o.servicios);
+    const el = card.querySelector('[data-ocalc="servicio"]');
+    if(el) el.textContent = cur(porServicio);
+
+    const alertEl = card.querySelector('[data-oalert]');
+    if(alertEl){
+      let msg = '';
+      if(numVal(o.costo) > 0 && numVal(o.servicios) <= 0){
+        msg = '⚠ Indica sobre cuántos servicios se distribuye este costo (número de servicios).';
+      }
+      alertEl.textContent = msg;
+      alertEl.style.display = msg ? 'block' : 'none';
+    }
+  });
+}
+
+/* ============================================================
+   9. LECTURA Y ESCRITURA DEL FORMULARIO
+   ============================================================ */
+function collectForm(){
+  return {
+    id: state.editId,
+    servicio: $('servicioNombre').value,
+    categoria: $('servicioCategoria').value,
+    duracion: $('servicioDuracion').value,
+    descripcion: $('servicioDescripcion').value,
+    clientasMes: $('servicioClientas').value,
+    fecha: $('fichaFecha').value,
+    productos: state.productos.map(p => ({ ...p })),
+    transporteModo: $('transporteModo').value,
+    transporteTotal: $('transporteTotal').value,
+    transporteClientas: $('transporteClientas').value,
+    transporteFijo: $('transporteFijo').value,
+    horas: $('manoHoras').value,
+    valorHora: $('manoValorHora').value,
+    otros: state.otros.map(o => ({ ...o })),
+    margenModo: $('margenModo').value,
+    margen: $('margenValor').value,
+    precioManual: $('precioManual').value,
+    costosFijos: $('costosFijos').value,
+    gananciaServicio: $('gananciaServicio').value
+  };
+}
+
+function fillForm(d){
+  if(!d) return;
+
+  state.productos = (Array.isArray(d.productos) ? d.productos : []).map(p => ({ ...nuevoProducto(), ...p }));
+  state.otros     = (Array.isArray(d.otros) ? d.otros : []).map(o => ({ ...nuevoOtro(), ...o }));
+  state.editId    = d.id || null;
+
+  $('servicioNombre').value      = d.servicio || '';
+  $('servicioCategoria').value   = d.categoria || '';
+  $('servicioDuracion').value    = d.duracion || '';
+  $('servicioDescripcion').value = d.descripcion || '';
+  $('servicioClientas').value    = d.clientasMes || '';
+  $('fichaFecha').value          = d.fecha || new Date().toISOString().slice(0, 10);
+
+  $('transporteModo').value      = d.transporteModo || 'distribuido';
+  $('transporteTotal').value     = d.transporteTotal || '';
+  $('transporteClientas').value  = d.transporteClientas || '';
+  $('transporteFijo').value      = d.transporteFijo || '';
+
+  $('manoHoras').value      = d.horas || '';
+  $('manoValorHora').value  = d.valorHora || '';
+
+  $('margenModo').value   = d.margenModo || 'margen';
+  $('margenValor').value  = (d.margen !== undefined && d.margen !== '') ? d.margen : 30;
+  $('precioManual').value = d.precioManual || '';
+  $('costosFijos').value  = d.costosFijos || '';
+  $('gananciaServicio').value = d.gananciaServicio || '';
+
+  $('fichaTitulo').textContent = state.editId ? 'Editar ficha de costo' : 'Nueva ficha de costo';
+
+  renderProductos();
+  renderOtros();
+  recalcular();
+}
+
+function resetForm(){
+  state.productos = [];
+  state.otros = [];
+  state.editId = null;
+
+  ['servicioNombre','servicioCategoria','servicioDuracion','servicioDescripcion',
+   'servicioClientas','transporteTotal','transporteClientas','transporteFijo',
+   'manoHoras','manoValorHora','precioManual','costosFijos','gananciaServicio']
+    .forEach(id => { $(id).value = ''; });
+
+  $('transporteModo').value = 'distribuido';
+  $('margenModo').value = 'margen';
+  $('margenValor').value = 30;
+  $('fichaFecha').value = new Date().toISOString().slice(0, 10);
+  $('fichaTitulo').textContent = 'Nueva ficha de costo';
+
+  state.productos.push(nuevoProducto());
+  renderProductos();
+  renderOtros();
+  recalcular();
+  ocultarErrores();
+}
+
+/* ============================================================
+   10. CÁLCULO PRINCIPAL (desde un objeto form)
+   ============================================================ */
+function calcularDesdeForm(f){
+  // --- Materiales ---
+  const productos = (f.productos || []).map(p => ({
+    ...p,
+    _costoUnidad: costoUnidadDe(p),
+    _costoClienta: costoClientaDe(p)
+  }));
+  const materiales = productos.reduce((s, p) => s + p._costoClienta, 0);
+
+  // --- Transporte ---
+  let transporte = 0;
+  if(f.transporteModo === 'fijo'){
+    transporte = numVal(f.transporteFijo);
+  }else{
+    transporte = calcularTransporte(f.transporteTotal, f.transporteClientas);
+  }
+
+  // --- Mano de obra ---
+  const horas = numVal(f.horas);
+  const valorHora = numVal(f.valorHora);
+  const manoObra = calcularManoDeObra(horas, valorHora);
+
+  // --- Otros costos ---
+  const otros = (f.otros || []).reduce(
+    (s, o) => s + calcularCostoDistribuido(o.costo, o.servicios), 0
+  );
+
+  // --- Costo total ---
+  const costoTotal = calcularCostoTotal(materiales, transporte, manoObra, otros);
+
+  // --- Precio recomendado ---
+  const modoM = f.margenModo || 'margen';
+  const valorM = numVal(f.margen);
+  let precioRecomendado;
+  if(modoM === 'recargo'){
+    precioRecomendado = calcularPrecioConRecargo(costoTotal, valorM);
+  }else{
+    precioRecomendado = calcularPrecioConMargen(costoTotal, valorM);
+  }
+
+  // --- Precio manual ---
+  const pmRaw = (f.precioManual === undefined || f.precioManual === null) ? '' : String(f.precioManual).trim();
+  const precioManual = pmRaw === '' ? null : numVal(pmRaw);
+
+  const precioFinal = (precioManual !== null && !isNaN(precioManual)) ? precioManual : precioRecomendado;
+
+  const ganancia    = calcularGanancia(precioFinal, costoTotal);
+  const margenReal  = calcularMargen(precioFinal, costoTotal);
+  const recargoReal = calcularRecargo(precioFinal, costoTotal);
+
+  return {
+    productos, materiales, transporte, manoObra, otros, costoTotal,
+    horas, valorHora, modoM, valorM,
+    precioRecomendado, precioManual, precioFinal,
+    ganancia, margenReal, recargoReal
+  };
+}
+
+function calcularTodo(){
+  return calcularDesdeForm(collectForm());
+}
+
+/* ============================================================
+   11. VALIDACIONES
+   ============================================================ */
+function validar(){
+  const errores = [];
+
+  if(!$('servicioNombre').value.trim()){
+    errores.push('El nombre del servicio es obligatorio.');
+  }
+
+  state.productos.forEach((p, i) => {
+    const nombre = (p.nombre || '').trim() || `Producto ${i + 1}`;
+
+    if(!(p.nombre || '').trim()){
+      errores.push(`Producto ${i + 1}: falta el nombre.`);
+    }
+
+    const cant = String(p.cantidad).trim();
+    const prec = String(p.precio).trim();
+    const uso  = String(p.uso).trim();
+
+    if(cant !== '' && numVal(cant) <= 0){
+      errores.push(`${nombre}: la cantidad comprada debe ser mayor que cero.`);
+    }
+    if(cant !== '' && numVal(cant) < 0){
+      errores.push(`${nombre}: la cantidad no puede ser negativa.`);
+    }
+    if(prec !== '' && numVal(prec) < 0){
+      errores.push(`${nombre}: el precio de compra no puede ser negativo.`);
+    }
+    if(uso !== '' && numVal(uso) < 0){
+      errores.push(`${nombre}: el uso por clienta no puede ser negativo.`);
+    }
+    if(!p.costoManual && (prec === '' || cant === '') && uso !== ''){
+      errores.push(`${nombre}: faltan el precio de compra o la cantidad comprada para calcular el costo.`);
+    }
+    if(numVal(cant) > 0 && numVal(uso) > numVal(cant)){
+      errores.push(`${nombre}: el uso por clienta (${uso}) supera la cantidad comprada (${cant}).`);
+    }
+  });
+
+  state.otros.forEach((o, i) => {
+    const nombre = (o.nombre || '').trim() || `Costo ${i + 1}`;
+    if(numVal(o.costo) > 0 && numVal(o.servicios) <= 0){
+      errores.push(`${nombre}: indica sobre cuántos servicios se distribuye este costo.`);
+    }
+    if(numVal(o.costo) < 0){
+      errores.push(`${nombre}: el costo no puede ser negativo.`);
+    }
+  });
+
+  const modoM = $('margenModo').value;
+  const valorM = numVal($('margenValor').value);
+  if(modoM === 'margen' && valorM >= 100){
+    errores.push('El margen sobre precio de venta debe ser menor que 100%.');
+  }
+  if(valorM < 0){
+    errores.push('El porcentaje de margen/recargo no puede ser negativo.');
+  }
+
+  const costoTotal = calcularTodo().costoTotal;
+  if(costoTotal <= 0 && state.productos.length === 0){
+    errores.push('Agrega al menos un producto o un costo para calcular el servicio.');
+  }
+
+  return errores;
+}
+
+function mostrarErrores(lista){
+  const box = $('alertBox');
+  if(!lista.length){
+    box.style.display = 'none';
+    box.innerHTML = '';
+    return;
+  }
+  box.innerHTML = '<b>Revisa estos puntos antes de continuar:</b><ul>' +
+    lista.map(e => `<li>${esc(e)}</li>`).join('') + '</ul>';
+  box.style.display = 'block';
+  box.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function ocultarErrores(){
+  const box = $('alertBox');
+  box.style.display = 'none';
+  box.innerHTML = '';
+}
+
+/* ============================================================
+   12. RECÁLCULO Y RENDER DE RESULTADOS
+   ============================================================ */
+function recalcular(){
+  // Mostrar / ocultar bloques de transporte
+  const modoT = $('transporteModo').value;
+  $('bloqueTransporteDist').style.display = (modoT === 'distribuido') ? '' : 'none';
+  $('bloqueTransporteFijo').style.display = (modoT === 'fijo') ? '' : 'none';
+
+  // Actualizar filas dinámicas
+  actualizarFilasProductos();
+  actualizarFilasOtros();
+
+  const r = calcularTodo();
+
+  // --- Bloque transporte / mano de obra ---
+  $('outTransporte').textContent = cur(r.transporte);
+  $('outManoObra').textContent  = cur(r.manoObra);
+
+  // --- Resumen ---
+  $('resMateriales').textContent = cur(r.materiales);
+  $('resTransporte').textContent = cur(r.transporte);
+  $('resManoObra').textContent   = cur(r.manoObra);
+  $('resOtros').textContent      = cur(r.otros);
+  $('resTotal').textContent      = cur(r.costoTotal);
+
+  // --- Margen ---
+  const precioValido = isFinite(r.precioRecomendado) && !isNaN(r.precioRecomendado);
+
+  $('outCostoTotal').textContent = cur(r.costoTotal);
+  $('outPrecioRecomendado').textContent = precioValido ? cur(r.precioRecomendado) : 'Margen inválido';
+  $('outGanancia').textContent = precioValido ? cur(calcularGanancia(r.precioRecomendado, r.costoTotal)) : '—';
+  $('outMargenReal').textContent = precioValido
+    ? pct(calcularMargen(r.precioRecomendado, r.costoTotal)) + ' / ' + pct(calcularRecargo(r.precioRecomendado, r.costoTotal))
+    : '—';
+
+  // --- Ejemplo visual margen vs recargo ---
+  const ejemploCosto = r.costoTotal > 0 ? r.costoTotal : 500;
+  const ejemploMargen = isFinite(calcularPrecioConMargen(ejemploCosto, r.valorM))
+    ? calcularPrecioConMargen(ejemploCosto, r.valorM) : NaN;
+  const ejemploRecargo = calcularPrecioConRecargo(ejemploCosto, r.valorM);
+  $('ejemploMargen').innerHTML =
+    `Con tu costo actual de <b>${cur(ejemploCosto)}</b> y <b>${pct(r.valorM)}</b>: ` +
+    `margen → <b>${isFinite(ejemploMargen) ? cur(ejemploMargen) : '—'}</b> · ` +
+    `recargo → <b>${cur(ejemploRecargo)}</b>`;
+
+  // --- Precio manual ---
+  const precioFinal = r.precioFinal;
+  const gananciaFinal = calcularGanancia(precioFinal, r.costoTotal);
+  const margenFinal   = calcularMargen(precioFinal, r.costoTotal);
+  const recargoFinal  = calcularRecargo(precioFinal, r.costoTotal);
+  const diferencia    = (precioValido && r.precioManual !== null)
+    ? (precioFinal - r.precioRecomendado) : 0;
+
+  $('outGananciaManual').textContent = cur(gananciaFinal);
+  $('outMargenManual').textContent   = pct(margenFinal);
+  $('outRecargoManual').textContent  = pct(recargoFinal);
+  $('outDiferencia').textContent = r.precioManual === null
+    ? 'Usando precio recomendado'
+    : (diferencia >= 0 ? '+' : '') + cur(diferencia);
+
+  // --- Punto de equilibrio ---
+  // Autocompletar la ganancia por servicio si el usuario no la escribió manualmente
+  const inputGan = $('gananciaServicio');
+  if(document.activeElement !== inputGan){
+    inputGan.value = numToStr(round2(gananciaFinal));
+  }
+
+  const costosFijos = numVal($('costosFijos').value);
+  const gananciaServ = numVal(inputGan.value);
+  const eq = calcularPuntoEquilibrio(costosFijos, gananciaServ);
+
+  if(costosFijos <= 0){
+    $('outEquilibrio').textContent = 'Introduce tus costos fijos mensuales';
+  }else if(!isFinite(eq)){
+    $('outEquilibrio').textContent = 'La ganancia por servicio debe ser mayor que cero';
+  }else{
+    $('outEquilibrio').textContent = `≈ ${eq} servicios al mes para cubrir tus costos`;
+  }
+
+  // --- Simulador ---
+  renderSimulador(r);
+
+  // --- Ficha final ---
+  $('resultadoFicha').innerHTML = construirFichaHTML(r, collectForm());
+
+  // --- Guardar borrador ---
+  saveDraft();
+}
+
+/* ============================================================
+   13. SIMULADOR DE PRECIOS
+   ============================================================ */
+function renderSimulador(r){
+  const tbody = $('tablaSimulador').querySelector('tbody');
+  const porcentajes = [10, 20, 30, 40, 50, 60, 70];
+  const esRecargo = r.modoM === 'recargo';
+
+  // Encabezado dinámico
+  $('tablaSimulador').querySelector('thead tr').children[0].textContent =
+    esRecargo ? 'Recargo' : 'Margen';
+
+  const cercano = porcentajes.reduce((a, b) =>
+    Math.abs(b - r.valorM) < Math.abs(a - r.valorM) ? b : a, porcentajes[0]);
+
+  tbody.innerHTML = porcentajes.map(p => {
+    let precio;
+    if(esRecargo){
+      precio = calcularPrecioConRecargo(r.costoTotal, p);
+    }else{
+      precio = calcularPrecioConMargen(r.costoTotal, p);
+    }
+    const valido = isFinite(precio) && !isNaN(precio);
+    const ganancia = valido ? calcularGanancia(precio, r.costoTotal) : 0;
+
+    return `<tr class="${p === cercano ? 'hl' : ''}">
+      <td>${p}%</td>
+      <td class="num">${valido ? cur(precio) : '—'}</td>
+      <td class="num">${valido ? cur(ganancia) : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ============================================================
+   14. CONSTRUCCIÓN DE LA FICHA VISUAL
+   ============================================================ */
+function construirFichaHTML(r, f){
+  const s = state.settings;
+  const logoHTML = s.logo
+    ? `<img src="${s.logo}" alt="Logo">`
+    : '💅';
+
+  const fecha = f.fecha || new Date().toISOString().slice(0, 10);
+  let fechaFmt = fecha;
+  try{
+    const d = new Date(fecha + 'T00:00:00');
+    if(!isNaN(d.getTime())){
+      fechaFmt = d.toLocaleDateString('es-ES', { day:'2-digit', month:'long', year:'numeric' });
+    }
+  }catch(e){ /* mantener */ }
+
+  const costoHora = r.horas > 0 ? (r.costoTotal / r.horas) : 0;
+  const gananciaFinal = calcularGanancia(r.precioFinal, r.costoTotal);
+  const margenFinal   = calcularMargen(r.precioFinal, r.costoTotal);
+  const recargoFinal  = calcularRecargo(r.precioFinal, r.costoTotal);
+
+  // Desglose de materiales
+  const filasMateriales = r.productos.filter(p => numVal(p.uso) > 0 || numVal(p.precio) > 0).map(p => `
+    <tr>
+      <td>${esc(p.nombre || 'Producto')}</td>
+      <td class="num">${cur(p._costoUnidad)}</td>
+      <td class="num">${esc(p.uso || 0)} ${esc(p.unidad || '')}</td>
+      <td class="num">${cur(p._costoClienta)}</td>
+    </tr>
+  `).join('');
+
+  const tablaMateriales = filasMateriales
+    ? `<div class="fp-section-title">Productos y materiales</div>
+       <div class="table-wrap">
+         <table class="data">
+           <thead>
+             <tr><th>Producto</th><th class="num">Costo unitario</th><th class="num">Uso</th><th class="num">Por clienta</th></tr>
+           </thead>
+           <tbody>${filasMateriales}</tbody>
+         </table>
+       </div>`
+    : '';
+
+  const otrosDetalle = r.otros > 0
+    ? `<div class="resumen-row"><span>Otros costos distribuidos</span><span>${cur(r.otros)}</span></div>`
+    : '';
+
+  return `
+    <div class="ficha-print">
+      <div class="fp-head">
+        <div class="fp-biz">
+          <div class="fp-logo">${logoHTML}</div>
+          <div>
+            <h3>${esc(s.negocio || 'Mi negocio')}</h3>
+            <p>${esc(s.propietario || '')}${s.propietario && s.telefono ? ' · ' : ''}${esc(s.telefono || '')}</p>
+          </div>
+        </div>
+        <div class="fp-title">
+          <div class="t1">FICHA DE COSTO</div>
+          <div class="t2">${esc(fechaFmt)}</div>
+        </div>
+      </div>
+
+      <div class="fp-service">
+        <h4>${esc(f.servicio || 'Servicio sin nombre')}</h4>
+        ${f.descripcion ? `<p>${esc(f.descripcion)}</p>` : ''}
+        <div class="fp-tags">
+          ${f.categoria ? `<span class="fp-tag">${esc(f.categoria)}</span>` : ''}
+          ${f.duracion ? `<span class="fp-tag">⏱ ${esc(f.duracion)} h</span>` : ''}
+          ${f.clientasMes ? `<span class="fp-tag">👥 ${esc(f.clientasMes)} clientas/mes</span>` : ''}
+          <span class="fp-tag">${esc(s.moneda || 'CUP')}</span>
+        </div>
+      </div>
+
+      ${tablaMateriales}
+
+      <div class="fp-section-title">Desglose de costos</div>
+      <div class="resumen-row"><span>Materiales</span><span>${cur(r.materiales)}</span></div>
+      <div class="resumen-row"><span>Transporte</span><span>${cur(r.transporte)}</span></div>
+      <div class="resumen-row"><span>Mano de obra</span><span>${cur(r.manoObra)}</span></div>
+      <div class="resumen-row"><span>Otros costos</span><span>${cur(r.otros)}</span></div>
+      <div class="resumen-row"><span>Mano de obra por hora</span><span>${cur(r.valorHora)}</span></div>
+
+      <div class="fp-total">
+        <span>Costo total del servicio</span>
+        <span>${cur(r.costoTotal)}</span>
+      </div>
+
+      <div class="fp-grid">
+        <div class="fp-box">
+          <div class="l">Precio recomendado</div>
+          <div class="v purple">${cur(r.precioRecomendado)}</div>
+        </div>
+        <div class="fp-box">
+          <div class="l">Precio final aplicado</div>
+          <div class="v purple">${cur(r.precioFinal)}</div>
+        </div>
+        <div class="fp-box">
+          <div class="l">Ganancia por servicio</div>
+          <div class="v green">${cur(gananciaFinal)}</div>
+        </div>
+        <div class="fp-box">
+          <div class="l">Margen real / Recargo</div>
+          <div class="v">${pct(margenFinal)} / ${pct(recargoFinal)}</div>
+        </div>
+        <div class="fp-box">
+          <div class="l">Precio mínimo (cubre costos)</div>
+          <div class="v">${cur(r.costoTotal)}</div>
+        </div>
+        <div class="fp-box">
+          <div class="l">Costo por hora de trabajo</div>
+          <div class="v">${costoHora > 0 ? cur(costoHora) : '—'}</div>
+        </div>
+      </div>
+
+      <div class="fp-foot">
+        Ficha generada con <b>Ficha de Costos</b> · ${esc(s.negocio || '')}<br>
+        Documento informativo. Los valores pueden variar según precios de compra y condiciones del mercado.
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   15. GESTIÓN DE FICHAS (guardar, editar, duplicar, eliminar)
+   ============================================================ */
+function guardarFicha(){
+  const errores = validar();
+  mostrarErrores(errores);
+  if(errores.length){
+    toast('Corrige los errores antes de guardar', 'err');
+    return;
+  }
+
+  const form = collectForm();
+  const r = calcularDesdeForm(form);
+
+  const ahora = new Date().toISOString();
+  let fichaExistente = null;
+
+  if(state.editId){
+    fichaExistente = state.fichas.find(f => f.id === state.editId) || null;
+  }
+
+  const ficha = {
+    ...form,
+    id: state.editId || ('f_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7)),
+    creada: fichaExistente ? fichaExistente.creada : ahora,
+    actualizada: ahora,
+    resumen: {
+      materiales: round2(r.materiales),
+      transporte: round2(r.transporte),
+      manoObra: round2(r.manoObra),
+      otros: round2(r.otros),
+      costoTotal: round2(r.costoTotal),
+      precioRecomendado: round2(r.precioRecomendado),
+      precioFinal: round2(r.precioFinal),
+      ganancia: round2(calcularGanancia(r.precioFinal, r.costoTotal)),
+      margenReal: round2(calcularMargen(r.precioFinal, r.costoTotal)),
+      recargoReal: round2(calcularRecargo(r.precioFinal, r.costoTotal))
+    }
+  };
+
+  if(fichaExistente){
+    const idx = state.fichas.findIndex(f => f.id === fichaExistente.id);
+    state.fichas[idx] = ficha;
+  }else{
+    state.fichas.unshift(ficha);
+  }
+
+  state.editId = ficha.id;
+  $('fichaTitulo').textContent = 'Editar ficha de costo';
+
+  persist();
+  renderDashboard();
+  renderFichas($('buscador').value);
+  renderAnalisis();
+  toast('✅ Ficha guardada correctamente', 'ok');
+}
+
+function editarFicha(id){
+  const ficha = state.fichas.find(f => f.id === id);
+  if(!ficha) return;
+  fillForm(ficha);
+  showView('ficha');
+  toast('Ficha cargada para editar');
+}
+
+function duplicarFicha(id){
+  const ficha = state.fichas.find(f => f.id === id);
+  if(!ficha) return;
+
+  const copia = JSON.parse(JSON.stringify(ficha));
+  copia.id = null;
+  copia.servicio = (copia.servicio || 'Servicio') + ' (copia)';
+
+  fillForm(copia);
+  state.editId = null;
+  $('fichaTitulo').textContent = 'Nueva ficha de costo (duplicada)';
+  showView('ficha');
+  toast('Ficha duplicada. Ajústala y guarda.');
+}
+
+function eliminarFicha(id){
+  const ficha = state.fichas.find(f => f.id === id);
+  if(!ficha) return;
+  if(!confirm(`¿Eliminar la ficha "${ficha.servicio || 'Sin nombre'}"?\nEsta acción no se puede deshacer.`)) return;
+
+  state.fichas = state.fichas.filter(f => f.id !== id);
+  if(state.editId === id){
+    state.editId = null;
+    $('fichaTitulo').textContent = 'Nueva ficha de costo';
+  }
+  persist();
+  renderFichas($('buscador').value);
+  renderDashboard();
+  renderAnalisis();
+  toast('Ficha eliminada');
+}
+
+/* ============================================================
+   16. RENDER DE LISTA DE FICHAS
+   ============================================================ */
+function renderFichas(filtro){
+  const cont = $('listaFichas');
+  const q = (filtro || '').trim().toLowerCase();
+
+  const items = state.fichas.filter(f =>
+    !q ||
+    (f.servicio || '').toLowerCase().includes(q) ||
+    (f.categoria || '').toLowerCase().includes(q) ||
+    (f.descripcion || '').toLowerCase().includes(q)
+  );
+
+  if(!items.length){
+    cont.innerHTML = `<p class="empty">${state.fichas.length
+      ? 'No se encontraron fichas con ese criterio.'
+      : 'Todavía no tienes fichas guardadas.<br>Crea tu primera ficha de costo.'}</p>`;
+    return;
+  }
+
+  cont.innerHTML = items.map(f => {
+    const r = f.resumen || {};
+    const fecha = f.actualizada
+      ? new Date(f.actualizada).toLocaleDateString('es-ES')
+      : '';
+
+    return `
+      <div class="ficha-item">
+        <div class="ficha-item-head">
+          <div>
+            <h4>${esc(f.servicio || 'Sin nombre')}</h4>
+            <span class="chip">${esc(f.categoria || 'Sin categoría')}</span>
+          </div>
+          <div class="ficha-price">${cur(r.precioFinal || 0)}</div>
+        </div>
+        <div class="ficha-meta">
+          <span>Costo: <b>${cur(r.costoTotal || 0)}</b></span>
+          <span>Ganancia: <b class="ok">${cur(r.ganancia || 0)}</b></span>
+          <span>Margen: <b>${pct(r.margenReal || 0)}</b></span>
+          ${fecha ? `<span>Act.: <b>${esc(fecha)}</b></span>` : ''}
+        </div>
+        <div class="ficha-actions">
+          <button class="btn sm" data-faction="editar" data-id="${f.id}">✏️ Editar</button>
+          <button class="btn sm ghost" data-faction="duplicar" data-id="${f.id}">📄 Duplicar</button>
+          <button class="btn sm ghost" data-faction="imprimir" data-id="${f.id}">🖨️ Imprimir</button>
+          <button class="btn sm danger" data-faction="eliminar" data-id="${f.id}">🗑️ Eliminar</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ============================================================
+   17. DASHBOARD
+   ============================================================ */
+function renderDashboard(){
+  const f = state.fichas;
+  const n = f.length;
+
+  const promedio = (key) => {
+    if(!n) return 0;
+    return f.reduce((s, x) => s + ((x.resumen && x.resumen[key]) || 0), 0) / n;
+  };
+
+  $('dashStats').innerHTML = `
+    <div class="stat">
+      <span class="stat-label">Fichas creadas</span>
+      <span class="stat-value purple">${n}</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Costo promedio</span>
+      <span class="stat-value">${cur(promedio('costoTotal'))}</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Precio promedio</span>
+      <span class="stat-value">${cur(promedio('precioFinal'))}</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Ganancia promedio</span>
+      <span class="stat-value ok">${cur(promedio('ganancia'))}</span>
+    </div>
+  `;
+
+  const recientes = state.fichas.slice(0, 4);
+  const cont = $('dashRecientes');
+
+  if(!recientes.length){
+    cont.innerHTML = '<p class="empty">Aún no hay fichas. Pulsa <b>➕ Nueva ficha</b> para empezar.</p>';
+    return;
+  }
+
+  cont.innerHTML = recientes.map(f => {
+    const r = f.resumen || {};
+    return `
+      <div class="ficha-item">
+        <div class="ficha-item-head">
+          <div>
+            <h4>${esc(f.servicio || 'Sin nombre')}</h4>
+            <span class="chip">${esc(f.categoria || 'Sin categoría')}</span>
+          </div>
+          <div class="ficha-price">${cur(r.precioFinal || 0)}</div>
+        </div>
+        <div class="ficha-meta">
+          <span>Costo: <b>${cur(r.costoTotal || 0)}</b></span>
+          <span>Ganancia: <b class="ok">${cur(r.ganancia || 0)}</b></span>
+          <span>Margen: <b>${pct(r.margenReal || 0)}</b></span>
+        </div>
+        <div class="ficha-actions">
+          <button class="btn sm" data-faction="editar" data-id="${f.id}">✏️ Abrir</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ============================================================
+   18. ANÁLISIS
+   ============================================================ */
+function renderAnalisis(){
+  const f = state.fichas;
+  const n = f.length;
+
+  const promedio = (key) => n
+    ? f.reduce((s, x) => s + ((x.resumen && x.resumen[key]) || 0), 0) / n
+    : 0;
+
+  const mejorMargen = n
+    ? Math.max(...f.map(x => (x.resumen && x.resumen.margenReal) || 0))
+    : 0;
+
+  $('analisisStats').innerHTML = `
+    <div class="stat">
+      <span class="stat-label">Servicios registrados</span>
+      <span class="stat-value purple">${n}</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Costo promedio</span>
+      <span class="stat-value">${cur(promedio('costoTotal'))}</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Ganancia promedio</span>
+      <span class="stat-value ok">${cur(promedio('ganancia'))}</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Mejor margen</span>
+      <span class="stat-value">${pct(mejorMargen)}</span>
+    </div>
+  `;
+
+  const tbody = $('tablaComparativa').querySelector('tbody');
+
+  if(!n){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#6b7280;padding:20px">Sin datos todavía.</td></tr>';
+  }else{
+    const ordenadas = [...f].sort((a, b) =>
+      ((b.resumen && b.resumen.margenReal) || 0) - ((a.resumen && a.resumen.margenReal) || 0)
+    );
+    tbody.innerHTML = ordenadas.map(x => {
+      const r = x.resumen || {};
+      return `<tr>
+        <td>${esc(x.servicio || 'Sin nombre')}</td>
+        <td class="num">${cur(r.costoTotal || 0)}</td>
+        <td class="num">${cur(r.precioFinal || 0)}</td>
+        <td class="num">${cur(r.ganancia || 0)}</td>
+        <td class="num">${pct(r.margenReal || 0)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Recomendaciones
+  const rec = [];
+  if(!n){
+    rec.push('Crea tu primera ficha de costo para ver recomendaciones personalizadas.');
+  }else{
+    const bajos = f.filter(x => (x.resumen && x.resumen.margenReal) < 30);
+    const negativos = f.filter(x => (x.resumen && x.resumen.ganancia) <= 0);
+
+    if(negativos.length){
+      rec.push(`⚠ Tienes <b>${negativos.length}</b> servicio(s) sin ganancia o con pérdida. Revisa su precio.`);
+    }
+    if(bajos.length){
+      rec.push(`💡 <b>${bajos.length}</b> servicio(s) tienen un margen inferior al 30%. Considera ajustar el precio o reducir costos.`);
+    }
+    if(!bajos.length && !negativos.length){
+      rec.push('✅ Todos tus servicios tienen un margen saludable (30% o más). ¡Buen trabajo!');
+    }
+
+    const margenProm = promedio('margenReal');
+    rec.push(`📊 Tu margen promedio es de <b>${pct(margenProm)}</b>.`);
+    rec.push('🧾 Recuerda incluir siempre tu tiempo de trabajo en el costo: muchas veces es el gasto más grande y el que más se olvida.');
+  }
+
+  $('recomendaciones').innerHTML = rec.map(t => `<p style="margin-bottom:8px;font-size:13.5px;line-height:1.6">${t}</p>`).join('');
+}
+
+/* ============================================================
+   19. EXPORTAR / IMPORTAR
+   ============================================================ */
+function descargarJSON(data, nombreArchivo){
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nombreArchivo;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportarFichaActual(){
+  const form = collectForm();
+  const r = calcularDesdeForm(form);
+
+  const data = {
+    tipo: 'ficha-costos',
+    version: 1,
+    exportado: new Date().toISOString(),
+    negocio: state.settings,
+    ficha: {
+      ...form,
+      resumen: {
+        materiales: round2(r.materiales),
+        transporte: round2(r.transporte),
+        manoObra: round2(r.manoObra),
+        otros: round2(r.otros),
+        costoTotal: round2(r.costoTotal),
+        precioRecomendado: round2(r.precioRecomendado),
+        precioFinal: round2(r.precioFinal),
+        ganancia: round2(calcularGanancia(r.precioFinal, r.costoTotal)),
+        margenReal: round2(calcularMargen(r.precioFinal, r.costoTotal))
+      }
+    }
+  };
+
+  const nombre = (form.servicio || 'ficha').replace(/[^a-z0-9]+/gi, '_').toLowerCase();
+  descargarJSON(data, `ficha_${nombre}.json`);
+  toast('Ficha exportada', 'ok');
+}
+
+function exportarTodo(){
+  const data = {
+    tipo: 'ficha-costos-backup',
+    version: 1,
+    exportado: new Date().toISOString(),
+    settings: state.settings,
+    fichas: state.fichas
+  };
+  descargarJSON(data, 'ficha_costos_respaldo.json');
+  toast('Respaldo exportado', 'ok');
+}
+
+function importarJSON(archivo){
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    try{
+      const data = JSON.parse(e.target.result);
+
+      let importadas = 0;
+
+      // Formato de respaldo completo
+      if(data && Array.isArray(data.fichas)){
+        if(data.settings) Object.assign(state.settings, data.settings);
+
+        data.fichas.forEach(f => {
+          if(!f || typeof f !== 'object') return;
+          const nueva = { ...f };
+          if(!nueva.id || state.fichas.some(x => x.id === nueva.id)){
+            nueva.id = 'f_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+          }
+          state.fichas.unshift(nueva);
+          importadas++;
+        });
+      }
+      // Formato de ficha individual
+      else if(data && data.ficha){
+        const nueva = { ...data.ficha };
+        nueva.id = 'f_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+        nueva.actualizada = new Date().toISOString();
+        nueva.creada = nueva.creada || nueva.actualizada;
+        state.fichas.unshift(nueva);
+        importadas = 1;
+      }
+      // Formato de ficha suelta
+      else if(data && (data.servicio || data.productos)){
+        const nueva = { ...data };
+        nueva.id = 'f_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+        nueva.actualizada = new Date().toISOString();
+        state.fichas.unshift(nueva);
+        importadas = 1;
+      }
+      else{
+        toast('El archivo no tiene un formato válido', 'err');
+        return;
+      }
+
+      persist();
+      aplicarSettings();
+      renderTodo();
+      toast(`✅ ${importadas} ficha(s) importada(s)`, 'ok');
+
+    }catch(err){
+      console.error(err);
+      toast('Error al leer el archivo JSON', 'err');
+    }
+  };
+
+  reader.onerror = () => toast('No se pudo leer el archivo', 'err');
+  reader.readAsText(archivo);
+}
+
+/* ============================================================
+   20. IMPRESIÓN
+   ============================================================ */
+function imprimirActual(){
+  const form = collectForm();
+  const r = calcularDesdeForm(form);
+  $('printArea').innerHTML = construirFichaHTML(r, form);
+  window.print();
+}
+
+function imprimirFichaPorId(id){
+  const ficha = state.fichas.find(f => f.id === id);
+  if(!ficha) return;
+  const r = calcularDesdeForm(ficha);
+  $('printArea').innerHTML = construirFichaHTML(r, ficha);
+  window.print();
+}
+
+/* ============================================================
+   21. CONFIGURACIÓN (datos del negocio)
+   ============================================================ */
+function aplicarSettings(){
+  const s = state.settings;
+
+  $('cfgNegocio').value     = s.negocio || '';
+  $('cfgPropietario').value = s.propietario || '';
+  $('cfgTelefono').value    = s.telefono || '';
+
+  const opcionesValidas = ['CUP','USD','EUR','MXN','COP','ARS','BRL'];
+  if(opcionesValidas.includes(s.monedaSel)){
+    $('cfgMoneda').value = s.monedaSel;
+    $('bloqueMonedaOtra').style.display = 'none';
+  }else{
+    $('cfgMoneda').value = 'Otra';
+    $('cfgMonedaOtra').value = s.moneda || '';
+    $('bloqueMonedaOtra').style.display = '';
+  }
+
+  // Logo
+  if(s.logo){
+    $('logoPreview').innerHTML = `<img src="${s.logo}" alt="Logo">`;
+    $('logoPreviewWrap').style.display = '';
+    $('headerLogo').innerHTML = `<img src="${s.logo}" alt="Logo">`;
+  }else{
+    $('logoPreviewWrap').style.display = 'none';
+    $('headerLogo').textContent = '💅';
+  }
+
+  actualizarHeader();
+}
+
+function actualizarHeader(){
+  const s = state.settings;
+  $('headerTitle').textContent = s.negocio || 'Ficha de Costos';
+  $('headerSub').textContent = s.propietario
+    ? s.propietario + (s.telefono ? ' · ' + s.telefono : '')
+    : (s.negocio ? '' : 'Configura tu negocio para comenzar');
+
+  $('bizBannerTexto').textContent = s.negocio
+    ? `${s.negocio} · ${s.moneda || 'CUP'}`
+    : 'Sin datos del negocio configurados';
+}
+
+/* ============================================================
+   22. RENDER GENERAL
+   ============================================================ */
+function renderTodo(){
+  renderProductos();
+  renderOtros();
+  recalcular();
+  renderFichas($('buscador') ? $('buscador').value : '');
+  renderDashboard();
+  renderAnalisis();
+  aplicarSettings();
+}
+
+/* ============================================================
+   23. EVENTOS
+   ============================================================ */
+function bindEvents(){
+
+  /* ---------- Navegación ---------- */
+  $('mainNav').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-view]');
+    if(btn) showView(btn.dataset.view);
+  });
+
+  document.querySelectorAll('[data-goto]').forEach(btn => {
+    btn.addEventListener('click', () => showView(btn.dataset.goto));
+  });
+
+  /* ---------- Ficha: inputs generales ---------- */
+  const viewFicha = $('view-ficha');
+
+  viewFicha.addEventListener('input', e => {
+    // Sincronizar duración → horas de mano de obra (solo si está vacío)
+    if(e.target.id === 'servicioDuracion'){
+      const horasInput = $('manoHoras');
+      if(!horasInput.value.trim() || horasInput.dataset.auto === '1'){
+        horasInput.value = e.target.value;
+        horasInput.dataset.auto = '1';
+      }
+    }
+    if(e.target.id === 'manoHoras'){
+      e.target.dataset.auto = '';
+    }
+    if(e.target.id === 'precioManual' || e.target.id === 'costosFijos' || e.target.id === 'gananciaServicio'){
+      // nada especial
+    }
+    recalcular();
+  });
+
+  viewFicha.addEventListener('change', () => {
+    recalcular();
+  });
+
+  /* ---------- Productos ---------- */
+  $('btnAddProducto').addEventListener('click', () => {
+    state.productos.push(nuevoProducto());
+    renderProductos();
+    recalcular();
+    // Enfocar el nombre del nuevo producto
+    const cards = document.querySelectorAll('#listaProductos .item-card');
+    const ultimo = cards[cards.length - 1];
+    if(ultimo){
+      const input = ultimo.querySelector('input[data-field="nombre"]');
+      if(input) input.focus();
+      ultimo.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+  });
+
+  $('listaProductos').addEventListener('input', e => {
+    const t = e.target;
+    const idx = t.dataset.idx;
+    const field = t.dataset.field;
+    if(idx === undefined || !field) return;
+
+    const p = state.productos[+idx];
+    if(!p) return;
+
+    if(field === 'costoUnidad'){
+      p.costoUnidad = t.value;
+      p.costoManual = t.value.trim() !== '';
+    }else{
+      p[field] = t.value;
+    }
+  });
+
+  $('listaProductos').addEventListener('change', e => {
+    const t = e.target;
+    if(t.dataset.field === 'unidad'){
+      actualizarFilasProductos();
+    }
+  });
+
+  $('listaProductos').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action="del-producto"]');
+    if(!btn) return;
+    const idx = +btn.dataset.idx;
+    state.productos.splice(idx, 1);
+    renderProductos();
+    recalcular();
+  });
+
+  /* ---------- Otros costos ---------- */
+  $('btnAddOtro').addEventListener('click', () => {
+    state.otros.push(nuevoOtro());
+    renderOtros();
+    recalcular();
+    const cards = document.querySelectorAll('#listaOtros .item-card');
+    const ultimo = cards[cards.length - 1];
+    if(ultimo){
+      const input = ultimo.querySelector('input[data-ofield="nombre"]');
+      if(input) input.focus();
+      ultimo.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+  });
+
+  $('listaOtros').addEventListener('input', e => {
+    const t = e.target;
+    const idx = t.dataset.oidx;
+    const field = t.dataset.ofield;
+    if(idx === undefined || !field) return;
+
+    const o = state.otros[+idx];
+    if(!o) return;
+
+    o[field] = t.value;
+  });
+
+  $('listaOtros').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action="del-otro"]');
+    if(!btn) return;
+    const idx = +btn.dataset.idx;
+    state.otros.splice(idx, 1);
+    renderOtros();
+    recalcular();
+  });
+
+  /* ---------- Botones de la ficha ---------- */
+  $('btnLimpiar').addEventListener('click', () => {
+    if(!confirm('¿Limpiar el formulario actual? Se perderán los datos no guardados.')) return;
+    resetForm();
+    try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+    toast('Formulario limpiado');
+  });
+
+  $('btnGuardar').addEventListener('click', guardarFicha);
+  $('btnImprimir').addEventListener('click', imprimirActual);
+  $('btnExportarFicha').addEventListener('click', exportarFichaActual);
+
+  $('btnLimpiarPrecio').addEventListener('click', () => {
+    $('precioManual').value = '';
+    recalcular();
+  });
+
+  /* ---------- Lista de fichas ---------- */
+  $('buscador').addEventListener('input', e => renderFichas(e.target.value));
+
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-faction]');
+    if(!btn) return;
+    const { faction, id } = btn.dataset;
+
+    if(faction === 'editar')    editarFicha(id);
+    if(faction === 'duplicar')  duplicarFicha(id);
+    if(faction === 'eliminar')  eliminarFicha(id);
+    if(faction === 'imprimir')  imprimirFichaPorId(id);
+  });
+
+  /* ---------- Configuración ---------- */
+  const camposConfig = ['cfgNegocio','cfgPropietario','cfgTelefono','cfgMoneda','cfgMonedaOtra'];
+
+  camposConfig.forEach(id => {
+    $(id).addEventListener('input', () => {
+      state.settings.negocio     = $('cfgNegocio').value;
+      state.settings.propietario = $('cfgPropietario').value;
+      state.settings.telefono    = $('cfgTelefono').value;
+
+      const sel = $('cfgMoneda').value;
+      state.settings.monedaSel = sel;
+
+      if(sel === 'Otra'){
+        $('bloqueMonedaOtra').style.display = '';
+        state.settings.moneda = ($('cfgMonedaOtra').value || 'CUP').toUpperCase();
+      }else{
+        $('bloqueMonedaOtra').style.display = 'none';
+        state.settings.moneda = sel;
+      }
+
+      persist();
+      actualizarHeader();
+      renderTodo();
+    });
+  });
+
+  $('cfgMoneda').addEventListener('change', () => {
+    $('cfgMoneda').dispatchEvent(new Event('input'));
+  });
+
+  /* ---------- Logo ---------- */
+  $('cfgLogo').addEventListener('change', e => {
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+
+    if(file.size > 400 * 1024){
+      toast('La imagen es muy grande. Usa una de menos de 400 KB.', 'err');
+      e.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = ev => {
+      state.settings.logo = ev.target.result;
+      persist();
+      aplicarSettings();
+      recalcular();
+      toast('Logo actualizado', 'ok');
+    };
+    reader.onerror = () => toast('No se pudo leer la imagen', 'err');
+    reader.readAsDataURL(file);
+  });
+
+  $('btnQuitarLogo').addEventListener('click', () => {
+    state.settings.logo = '';
+    $('cfgLogo').value = '';
+    persist();
+    aplicarSettings();
+    recalcular();
+    toast('Logo eliminado');
+  });
+
+  /* ---------- Exportar / Importar ---------- */
+  $('btnExportarTodo').addEventListener('click', exportarTodo);
+
+  $('btnImportar').addEventListener('click', () => $('inputImportar').click());
+
+  $('inputImportar').addEventListener('change', e => {
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    importarJSON(file);
+    e.target.value = '';
+  });
+
+  $('btnBorrarTodo').addEventListener('click', () => {
+    if(!state.fichas.length){
+      toast('No hay fichas para borrar');
+      return;
+    }
+    if(!confirm(`¿Borrar TODAS las ${state.fichas.length} fichas guardadas?\nEsta acción no se puede deshacer.`)) return;
+
+    state.fichas = [];
+    state.editId = null;
+    persist();
+    renderTodo();
+    toast('Todas las fichas fueron eliminadas');
+  });
+
+  /* ---------- Atajos de teclado ---------- */
+  document.addEventListener('keydown', e => {
+    if((e.ctrlKey || e.metaKey) && e.key === 's'){
+      const activa = document.querySelector('.view.active');
+      if(activa && activa.id === 'view-ficha'){
+        e.preventDefault();
+        guardarFicha();
+      }
+    }
+  });
+}
+
+/* ============================================================
+   24. INICIALIZACIÓN
+   ============================================================ */
+function init(){
+  // Valores por defecto de fecha
+  $('fichaFecha').value = new Date().toISOString().slice(0, 10);
+
+  // Estado inicial
+  state.productos = [nuevoProducto()];
+  state.otros = [];
+
+  // Cargar datos guardados
+  loadStore();
+
+  // Si no había borrador, inicializar el formulario limpio
+  if(!$('servicioNombre').value && !state.productos.length){
+    state.productos = [nuevoProducto()];
+  }
+  if(!$('fichaFecha').value){
+    $('fichaFecha').value = new Date().toISOString().slice(0, 10);
+  }
+
+  // Si el borrador cargó productos vacíos, asegurar al menos uno
+  if(!state.productos.length) state.productos = [nuevoProducto()];
+
+  bindEvents();
+  aplicarSettings();
+  renderProductos();
+  renderOtros();
+  recalcular();
+  renderDashboard();
+  renderFichas('');
+  renderAnalisis();
+
+  showView('dashboard');
+}
+
+// El script se carga al final del body, el DOM ya está listo.
+init();
+
+</script>
+</body>
+</html>
